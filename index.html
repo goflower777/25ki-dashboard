@@ -102,7 +102,7 @@ header{background:linear-gradient(135deg,#1e3a5f 0%,#0d1117 60%);border-bottom:1
 /* STAFF CARDS */
 .staff-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
 .staff-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;}
-.staff-avatar{width:56px;height:56px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;}
+.staff-avatar{width:56px;height:56px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;overflow:hidden;position:relative;}
 .staff-info{flex:1;}
 .staff-name{font-size:17px;font-weight:900;}
 .staff-role{font-size:12px;margin-top:2px;font-weight:600;}
@@ -151,9 +151,61 @@ header{background:linear-gradient(135deg,#1e3a5f 0%,#0d1117 60%);border-bottom:1
 
 /* ORG VIEW */
 .org-section{margin-bottom:16px;}
+
+/* PASSWORD LOCK */
+.pw-overlay{position:fixed;inset:0;background:#0d1117;z-index:9999;display:flex;align-items:center;justify-content:center;}
+.pw-box{background:#161b22;border:1px solid #30363d;border-radius:20px;padding:36px 28px;width:90%;max-width:340px;text-align:center;}
+.pw-logo{font-size:32px;margin-bottom:8px;}
+.pw-title{font-size:18px;font-weight:900;color:#e6edf3;margin-bottom:4px;}
+.pw-sub{font-size:13px;color:#8b949e;margin-bottom:24px;}
+.pw-input{width:100%;background:#0d1117;border:1px solid #30363d;color:#e6edf3;border-radius:10px;padding:12px 16px;font-size:16px;font-family:'Noto Sans KR',sans-serif;outline:none;text-align:center;letter-spacing:4px;box-sizing:border-box;transition:border .2s;}
+.pw-input:focus{border-color:#3b82f6;}
+.pw-btn{width:100%;margin-top:12px;background:#3b82f6;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+.pw-btn:active{opacity:.85;}
+.pw-error{color:#ef4444;font-size:13px;margin-top:10px;height:18px;}
+.pw-hint{color:#8b949e;font-size:11px;margin-top:16px;}
 </style>
 </head>
 <body>
+<!-- 비밀번호 잠금 화면 -->
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-box">
+    <div class="pw-logo">🔐</div>
+    <div class="pw-title">제25기 핵심인재과정</div>
+    <div class="pw-sub">접속하려면 비밀번호를 입력하세요</div>
+    <input type="password" class="pw-input" id="pwInput" placeholder="••••••"
+      maxlength="20" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">입장하기</button>
+    <div class="pw-error" id="pwError"></div>
+    <div class="pw-hint">※ 비밀번호는 운영진에게 문의하세요</div>
+  </div>
+</div>
+<script>
+// 비밀번호 설정 (변경하려면 이 값을 수정하세요)
+const APP_PASSWORD = '25gi2026';
+
+function checkPw(){
+  const val = document.getElementById('pwInput').value;
+  if(val === APP_PASSWORD){
+    document.getElementById('pwOverlay').style.display='none';
+    sessionStorage.setItem('pw_ok','1');
+  } else {
+    document.getElementById('pwError').textContent='비밀번호가 틀렸습니다.';
+    document.getElementById('pwInput').value='';
+    document.getElementById('pwInput').focus();
+    setTimeout(()=>document.getElementById('pwError').textContent='',2000);
+  }
+}
+
+// 이미 인증된 경우 바로 통과
+if(sessionStorage.getItem('pw_ok')==='1'){
+  document.addEventListener('DOMContentLoaded',()=>{
+    const ov=document.getElementById('pwOverlay');
+    if(ov) ov.style.display='none';
+  });
+}
+</script>
+
 
 <header>
   <div class="hdr-top">
@@ -183,13 +235,13 @@ header{background:linear-gradient(135deg,#1e3a5f 0%,#0d1117 60%);border-bottom:1
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
     분임
   </button>
-  <button class="nav-btn" data-tab="research" onclick="setTab('research')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-    직무연구조
+  <button class="nav-btn" data-tab="utopia" onclick="setTab('utopia')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    유토피아
   </button>
-  <button class="nav-btn" data-tab="travel" onclick="setTab('travel')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l1.06-1.06a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-    국외연수팀
+  <button class="nav-btn" data-tab="lang" onclick="setTab('lang')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"/></svg>
+    외국어반
   </button>
   <button class="nav-btn" data-tab="timetable" onclick="setTab('timetable')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
@@ -239,35 +291,114 @@ const TEAM_REGIONS = {
 
 // ===== STAFF DATA =====
 const STAFF = [
-  {name:'강경아', role:'과정장-허가원 승인', color:'#1e3a8a', bg:'#3b82f6', phone:'010-6357-9901', emoji:'👑'},
-  {name:'이선주', role:'부과정장-남북부 교육기획, 강사관리 등', color:'#14532d', bg:'#10b981', phone:'010-9484-0028', emoji:'🌿'},
-  {name:'이정례', role:'부과정장-남북부 현장활동, 남부 근태관리 등', color:'#451a03', bg:'#f59e0b', phone:'010-3016-3638', emoji:'⭐'},
-  {name:'장유미', role:'부과정장-남부 교육운영, 남북부 평가관리 등', color:'#2e1065', bg:'#8b5cf6', phone:'010-3476-3511', emoji:'💜'},
-  {name:'유유정', role:'부과정장-북부 교육운영, 북부 근태관리 등', color:'#4a1942', bg:'#ec4899', phone:'010-5028-3122', emoji:'🌸'},
+  {name:'강경아', role:'과정장-허가원 승인', color:'#1e3a8a', bg:'#3b82f6', phone:'010-6357-9901', emoji:'👑', photo:'photos/171.jpg'},
+  {name:'이선주', role:'부과정장-남북부 교육기획, 강사관리 등', color:'#14532d', bg:'#10b981', phone:'010-9484-0028', emoji:'🌿', photo:'photos/172.jpg'},
+  {name:'이정례', role:'부과정장-남북부 현장활동, 남부 근태관리 등', color:'#451a03', bg:'#f59e0b', phone:'010-3016-3638', emoji:'⭐', photo:'photos/173.jpg'},
+  {name:'장유미', role:'부과정장-남부 교육운영, 남북부 평가관리 등', color:'#2e1065', bg:'#8b5cf6', phone:'010-3476-3511', emoji:'💜', photo:'photos/174.jpg'},
+  {name:'유유정', role:'부과정장-북부 교육운영, 북부 근태관리 등', color:'#4a1942', bg:'#ec4899', phone:'010-5028-3122', emoji:'🌸', photo:'photos/175.jpg'},
 ];
+
+
+// ===== 212호 실제 자리배치 (교번 기준) =====
+// 파란색 자리만 교번 입력, null = 빈자리
+// 북부(양주,포천,구리,가평,의정부) 제외
+const SEAT_ROWS = {
+  // 전면부 좌측 (6열, 강단 앞부터)
+  FL: [
+    [null, null, null, 81,  100, 111],
+    [55,   115,  67,   2,   9,   25 ],
+    [46,   60,   16,   109, 72,  35 ],
+    [43,   118,  91,   5,   94,  21 ],
+    [96,   40,   49,   121, 56,  129],
+  ],
+  // 전면부 중앙 (5열)
+  FM: [
+    [59,  106, 31,  83,  116],
+    [24,  69,  22,  23,  78 ],
+    [34,  126, 122, 18,  124],
+    [125, 98,  113, 95,  57 ],
+    [null,null,null,null,null],
+  ],
+  // 전면부 우측 (6열)
+  FR: [
+    [null, null, null, null, null, null],
+    [52,   54,   14,   7,    null, null],
+    [80,   120,  48,   68,   32,   86  ],
+    [84,   123,  13,   4,    8,    3   ],
+    [61,   77,   104,  17,   26,   15  ],
+  ],
+  // 후면부 좌측 (6열)
+  BL: [
+    [1,   51,  39,  74,  27,  85 ],
+    [97,  42,  108, 70,  92,  101],
+    [73,  103, 114, 62,  88,  117],
+    [50,  102, 110, 64,  66,  87 ],
+  ],
+  // 후면부 우측 (6열)
+  BR: [
+    [20,  47,  6,   53,  107, 12 ],
+    [28,  58,  36,  99,  38,  71 ],
+    [76,  63,  19,  89,  79,  29 ],
+    [127, 10,  65,  45,  119, 11 ],
+  ],
+};
+
+
+// ===== 주차별 날짜 매핑 =====
+const TT_DATES = {
+  '11주차(4.27~5.1)':     {'월':'4.27.(월)','화':'4.28.(화)','수':'4.29.(수)','목':'4.30.(목)','금':'5.1.(금)'},
+  '12주차(5.4~5.8)':      {'월':'5.4.(일)','화':'5.5.(월)','수':'5.6.(화)','목':'5.7.(수)','금':'5.8.(목)'},
+  '13주차(5.11~5.15)':    {'월':'5.11.(월)','화':'5.12.(화)','수':'5.13.(수)','목':'5.14.(목)','금':'5.15.(금)'},
+  '14주차(5.18~5.22)':    {'월':'5.18.(월)','화':'5.19.(화)','수':'5.20.(수)','목':'5.21.(목)','금':'5.22.(금)'},
+  '15주차(5.25~5.29)':    {'월':'5.25.(월)','화':'5.26.(화)','수':'5.27.(수)','목':'5.28.(목)','금':'5.29.(금)'},
+  '16주차(6.1~6.5)':      {'월':'6.1.(월)','화':'6.2.(화)','수':'6.3.(수)','목':'6.4.(목)','금':'6.5.(금)'},
+  '17주차(6.8~6.12)':     {'월':'6.8.(월)','화':'6.9.(화)','수':'6.10.(수)','목':'6.11.(목)','금':'6.12.(금)'},
+  '18주차(6.15~6.19)':    {'월':'6.15.(월)','화':'6.16.(화)','수':'6.17.(수)','목':'6.18.(목)','금':'6.19.(금)'},
+  '19주차(6.22~6.26)':    {'월':'6.22.(월)','화':'6.23.(화)','수':'6.24.(수)','목':'6.25.(목)','금':'6.26.(금)'},
+  '20주차(6.29~7.3)':     {'월':'6.29.(월)','화':'6.30.(화)','수':'7.1.(수)','목':'7.2.(목)','금':'7.3.(금)'},
+  '21주차(7.6~7.10)':     {'월':'7.6.(월)','화':'7.7.(화)','수':'7.8.(수)','목':'7.9.(목)','금':'7.10.(금)'},
+  '22주차(7.13~7.17)':    {'월':'7.13.(월)','화':'7.14.(화)','수':'7.15.(수)','목':'7.16.(목)','금':'7.17.(금)'},
+  '23~24주차(7.20~7.31)': {'월':'7.20.(월)','화':'7.21.(화)','수':'7.22.(수)','목':'7.23.(목)','금':'7.24.(금)'},
+};
 
 // ===== TIMETABLE DATA (5~7월 실제 시간표) =====
 const TIMETABLE = {
-  '12주차(5.4~5.8)': {
+  '11주차(4.27~5.1)': {
     '월': [
-      {time:'09:00~11:50', subject:'개인 미션 - 공공캠페인 발굴 사례 찾기 1p', detail:'개인 미션 수행', type:'개인미션', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'13:00~14:50', subject:'에너지 리차지 (Energy Re-charge)', detail:'안지연 대표', type:'특강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
+      {time:'09:00~16:50', subject:'분임별 봉사활동 (현장학습)', detail:'', type:'봉사', typeColor:'#14532d', typeText:'#86efac'},
     ],
     '화': [
-      {time:'09:00~11:50', subject:'어린이날 대체 - 데스노트 미리 보기', detail:'뮤지컬 사전 관람', type:'문화', typeColor:'#4a1942', typeText:'#f9a8d4'},
+      {time:'09:00~10:50', subject:'직무연구', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
+      {time:'13:00~14:50', subject:'취미반 - 귀로 소통하는 신체 회복 ⑤', detail:'최은하 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
+      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
+    ],
+    '수': [
+      {time:'13:00~16:50', subject:'아이디어 런웨이 정책 제안 공모전', detail:'', type:'특강', typeColor:'#1e3a5f', typeText:'#93c5fd'},
+    ],
+    '목': [],
+    '금': [
+      {time:'종일', subject:'근로자의 날', detail:'공휴일', type:'휴일', typeColor:'#3b1a1a', typeText:'#fca5a5'},
+    ],
+  },
+  '12주차(5.4~5.8)': {
+    '월': [
+      {time:'종일', subject:'개인 미션 - 공공캠페인 발굴 사례 찾기 1p', detail:'5.4(일) - 개인 미션 수행', type:'개인미션', typeColor:'#1e3a5f', typeText:'#93c5fd'},
+    ],
+    '화': [
+      {time:'09:00~11:50', subject:'어린이날 (공휴일) - 데스노트 미리 보기', detail:'5.5(월) 어린이날', type:'휴일', typeColor:'#3b1a1a', typeText:'#fca5a5'},
+      {time:'13:00~14:50', subject:'에너지 리차지 (Energy Re-charge)', detail:'안지연 대표', type:'특강', typeColor:'#14532d', typeText:'#86efac'},
       {time:'13:00~16:50', subject:'뮤지컬 데스노트 관람', detail:'디큐브 링크아트센터', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
     ],
     '수': [
-      {time:'종일', subject:'어린이날', detail:'공휴일', type:'휴일', typeColor:'#3b1a1a', typeText:'#fca5a5'},
+      {time:'09:00~11:50', subject:'에너지 리차지 (Energy Re-charge)', detail:'5.6(화) - 대니구의 플레이리스트', type:'특강', typeColor:'#14532d', typeText:'#86efac'},
+      {time:'09:00~11:50', subject:'롯데콘서트홀 & 독립서점 방문', detail:'대니구의 플레이리스트', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
     ],
     '목': [
-      {time:'09:00~11:50', subject:'에너지 리차지 (Energy Re-charge)', detail:'대니구의 플레이리스트 - 롯데콘서트홀 & 독립서점 방문', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'13:00~14:50', subject:'가치 소비, 로컬 투어 영상 제작 1', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
+      {time:'09:00~16:50', subject:'가치 소비, 로컬 투어 영상 제작 1', detail:'5.7(수) - 박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
     ],
     '금': [
-      {time:'09:00~16:50', subject:'가치 소비, 로컬 투어 영상 제작 1 (계속)', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
+      {time:'09:00~16:50', subject:'가치 소비, 로컬 투어 영상 제작 1 (계속)', detail:'5.8(목) - 박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
+      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
     ],
   },
   '13주차(5.11~5.15)': {
@@ -532,60 +663,33 @@ const TIMETABLE = {
   },
 };
 
-// ===== MENU DATA (샘플 - 수정 가능) =====
+// ===== MENU DATA (인재소담 주간식단표) =====
 const MENU = {
-  '1주차': {
+  '4월20일주간(4.20~4.24)': {
     '월': {
-      조식: ['한식 뷔페', '미역국', '잡곡밥', '반찬류'],
-      중식: ['된장찌개', '제육볶음', '콩나물무침', '깍두기', '공기밥'],
-      석식: ['순두부찌개', '삼겹살구이', '파채샐러드', '쌈채소', '공기밥'],
+      조식: [],
+      중식: ['찰흑미경기쌀밥', '콩비지찌개', '훈제오리야채볶음 *머스타드소스', '소고기청포묵무침', '들기름도시락김', '깍두기', '아이스망고바'],
+      석식: [],
     },
     '화': {
-      조식: ['양식 뷔페', '샐러드바', '과일', '음료'],
-      중식: ['김치찌개', '닭갈비', '시금치나물', '김치', '공기밥'],
-      석식: ['부대찌개', '스파게티', '샐러드', '빵', '음료'],
+      조식: [],
+      중식: ['후리가케밥', '미니냉모밀', '수제등심돈까스', '그린샐러드 *참깨드레싱', '발사믹모짜렐라토마토', '깍두기'],
+      석식: [],
     },
     '수': {
-      조식: ['한식 뷔페', '콩나물국', '현미밥', '반찬류'],
-      중식: ['갈비탕', '잡채', '도라지무침', '깍두기', '공기밥'],
-      석식: ['자유식(외식)'],
+      조식: [],
+      중식: ['7곡경기쌀밥', '얼큰민물새우수제비국', '삼치소금구이', '미트볼떡조림', '열무나물무침', '깍두기', '사과'],
+      석식: [],
     },
     '목': {
-      조식: ['양식 뷔페', '토스트', '요거트', '과일'],
-      중식: ['청국장찌개', '생선구이', '감자조림', '열무김치', '공기밥'],
-      석식: ['육개장', '불고기', '탕평채', '배추김치', '공기밥'],
+      조식: [],
+      중식: ['경기쌀밥', '근대된장국', '김치제육두루치기', '야채계란찜', '땅콩명엽채볶음', '청경채겉절이', '수제우유미숫가루'],
+      석식: [],
     },
     '금': {
-      조식: ['한식 뷔페', '북어국', '잡곡밥', '반찬류'],
-      중식: ['삼계탕', '잡채', '오이무침', '깍두기', '공기밥'],
-      석식: ['귀가'],
-    },
-  },
-  '2주차': {
-    '월': {
-      조식: ['한식 뷔페', '된장국', '잡곡밥', '반찬류'],
-      중식: ['돼지국밥', '파전', '콩나물무침', '열무김치', '공기밥'],
-      석식: ['동태찌개', '찜닭', '무생채', '배추김치', '공기밥'],
-    },
-    '화': {
-      조식: ['양식 뷔페', '스크램블에그', '샐러드', '음료'],
-      중식: ['추어탕', '돼지갈비구이', '깻잎무침', '깍두기', '공기밥'],
-      석식: ['국외연수팀 환송 만찬'],
-    },
-    '수': {
-      조식: ['한식 뷔페', '시래기국', '현미밥', '반찬류'],
-      중식: ['비빔밥', '돼지보쌈', '나물류', '배추김치', '공기밥'],
-      석식: ['자유식(외식)'],
-    },
-    '목': {
-      조식: ['양식 뷔페', '팬케이크', '요거트', '과일'],
-      중식: ['사골설렁탕', '잡채', '두부조림', '깍두기', '공기밥'],
-      석식: ['수료 기념 만찬 (한정식)'],
-    },
-    '금': {
-      조식: ['한식 뷔페', '북어국', '잡곡밥', '반찬류'],
-      중식: ['갈비찜', 'japchae', '탕평채', '배추김치', '공기밥'],
-      석식: ['귀가'],
+      조식: [],
+      중식: ['찰현미경기쌀밥', '쑥갓어묵국', '춘천식닭갈비', '고구마맛탕', '그린샐러드 *블루베리드레싱', '포기김치'],
+      석식: [],
     },
   },
 };
@@ -596,7 +700,7 @@ let currentFilter = 'all';
 let searchQuery = '';
 let ttWeek = '12주차(5.4~5.8)';
 let ttDay = '월';
-let menuWeek = '1주차';
+let menuWeek = '4월20일주간(4.20~4.24)';
 let menuDay = '월';
 let seatFilter = 'all';
 
@@ -613,18 +717,15 @@ function filteredData(){
   if(currentFilter!=='all'){
     if(currentTab==='bun')d=d.filter(m=>m.분임===currentFilter);
     else if(currentTab==='org')d=d.filter(m=>m.소속===currentFilter);
-    else if(currentTab==='research')d=d.filter(m=>m.직무연구조===currentFilter);
-    else if(currentTab==='travel')d=d.filter(m=>m.국외연수팀===currentFilter);
-    else if(currentTab==='research')d=d.filter(m=>m.직무연구조===currentFilter);
+    else if(currentTab==='utopia')d=d.filter(m=>m.발표회차===currentFilter);
     else if(currentTab==='lang'){
-    if(currentFilter.startsWith('일본어(')){
-      const ban=currentFilter.replace('일본어(','').replace(')','');
-      d=d.filter(m=>m.외국어==='일본어'&&m.외국어반===ban);
-    } else {
-      d=d.filter(m=>m.외국어===currentFilter);
+      if(currentFilter.startsWith('일본어(')){
+        const ban=currentFilter.replace('일본어(','').replace(')','');
+        d=d.filter(m=>m.외국어==='일본어'&&m.외국어반===ban);
+      } else {
+        d=d.filter(m=>m.외국어===currentFilter);
+      }
     }
-  }
-    else if(currentTab==='travel')d=d.filter(m=>m.국외연수팀===currentFilter);
   }
   return d;
 }
@@ -644,6 +745,7 @@ function renderFilter(){
   let opts=[{v:'all',l:'전체'}];
   if(currentTab==='bun'){for(let i=1;i<=12;i++)opts.push({v:`${i}분임`,l:`${i}분임`});}
   else if(currentTab==='org'){const orgs=[...new Set(DATA.map(m=>m.소속))].sort();orgs.forEach(o=>opts.push({v:o,l:o}));}
+  else if(currentTab==='utopia'){for(let i=1;i<=8;i++){const mo=['3월','4월','5월','6월','7월','8월','9월','10월'][i-1];opts.push({v:`${i}회차`,l:`${i}회차(${mo})`});}}
   else if(currentTab==='research'){for(let i=1;i<=28;i++)opts.push({v:`${i}조`,l:`${i}조`});}
   else if(currentTab==='travel'){['1팀','2팀','3팀','4팀'].forEach(t=>opts.push({v:t,l:t}));}
   else if(currentTab==='research'){for(let i=1;i<=28;i++)opts.push({v:`${i}조`,l:`${i}조`});}
@@ -755,6 +857,35 @@ function render(){
     return;
   }
 
+  // UTOPIA TAB
+  if(currentTab==='utopia'){
+    const UTOPIA_MONTH={'1회차':'3월','2회차':'4월','3회차':'5월','4회차':'6월',
+                        '5회차':'7월','6회차':'8월','7회차':'9월','8회차':'10월'};
+    if(currentFilter==='all'){
+      let html='<div>';
+      for(let i=1;i<=8;i++){
+        const round=`${i}회차`;
+        const month=UTOPIA_MONTH[round];
+        const members=DATA.filter(m=>m.발표회차===round)
+                         .sort((a,b)=>parseInt(a.발표순번)-parseInt(b.발표순번));
+        html+=`<div class="group-section">
+          <div class="group-hdr" onclick="setFilter('${round}')">
+            <span class="group-title">🎤 유토피아 ${round} <span style="color:var(--a1);font-size:12px">${month}</span></span>
+            <span class="group-cnt">${members.length}명</span>
+          </div>
+          <div class="group-pills">${members.map(m=>`<div class="pill" onclick="openModal('${m.교번}')">${m.발표순번}번 ${m.성명}<span>${m.소속}</span></div>`).join('')}</div>
+        </div>`;
+      }
+      html+='</div>';
+      c.innerHTML=html; return;
+    }
+    const month=UTOPIA_MONTH[currentFilter]||'';
+    const sorted=d.sort((a,b)=>parseInt(a.발표순번)-parseInt(b.발표순번));
+    c.innerHTML=`<div class="results-info">🎤 ${currentFilter} · ${month} · ${sorted.length}명</div>
+      <div class="member-list">${sorted.map(memberCard).join('')}</div>`;
+    return;
+  }
+
   // RESEARCH TAB
   if(currentTab==='research'){
     if(currentFilter==='all'){
@@ -809,7 +940,11 @@ function render(){
     const schedule=TIMETABLE[ttWeek]?.[ttDay]||[];
     c.innerHTML=`
       <div class="tt-week">${weeks.map(w=>`<button class="tt-day-btn${ttWeek===w?' active':''}" onclick="ttWeek='${w}';ttDay='월';render()">${w}</button>`).join('')}</div>
-      <div class="tt-week">${days.map(d=>`<button class="tt-day-btn${ttDay===d?' active':''}" onclick="ttDay='${d}';render()">${d}요일</button>`).join('')}</div>
+      <div class="tt-week">${days.map(d=>{
+        const dateStr = TT_DATES[ttWeek]?.[d]||'';
+        const label = dateStr ? `${dateStr}` : `${d}요일`;
+        return `<button class="tt-day-btn${ttDay===d?' active':''}" onclick="ttDay='${d}';render()">${label}</button>`;
+      }).join('')}</div>
       ${schedule.length?schedule.map(s=>`
         <div class="tt-card">
           <div class="tt-time">⏰ ${s.time}</div>
@@ -828,65 +963,101 @@ function render(){
     const weeks=Object.keys(MENU);
     const days=['월','화','수','목','금'];
     const dayMenu=MENU[menuWeek]?.[menuDay]||{};
-    const mealConfig=[
-      {key:'조식',icon:'🌅',bg:'#1e3a5f',dot:'#93c5fd'},
-      {key:'중식',icon:'☀️',bg:'#14532d',dot:'#86efac'},
-      {key:'석식',icon:'🌙',bg:'#451a03',dot:'#fcd34d'},
-    ];
+    const days2=['월','화','수','목','금'];
+    const labels2={'월':'4월20일(월)','화':'4월21일(화)','수':'4월22일(수)','목':'4월23일(목)','금':'4월24일(금)'};
+    const items=dayMenu['중식']||[];
     c.innerHTML=`
       <div class="menu-week">${weeks.map(w=>`<button class="menu-day-btn${menuWeek===w?' active':''}" onclick="menuWeek='${w}';render()">${w}</button>`).join('')}</div>
-      <div class="menu-week">${days.map(d=>`<button class="menu-day-btn${menuDay===d?' active':''}" onclick="menuDay='${d}';render()">${d}요일</button>`).join('')}</div>
-      ${mealConfig.map(m=>{
-        const items=dayMenu[m.key]||[];
-        return `<div class="meal-card">
-          <div class="meal-hdr" style="background:${m.bg}20;border-bottom:1px solid ${m.bg}40">
-            ${m.icon} <span>${m.key}</span>
-          </div>
-          <div class="meal-items">${items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${m.dot}"></div>${item}</div>`).join('')||'<div style="color:var(--t2);padding:8px 0">정보 없음</div>'}</div>
-        </div>`;
-      }).join('')}
-      <div style="background:var(--s2);border-radius:10px;padding:12px 14px;margin-top:4px;font-size:12px;color:var(--t2);">💡 식단은 운영 상황에 따라 변경될 수 있습니다</div>`;
+      <div class="menu-week">${days2.map(d=>`<button class="menu-day-btn${menuDay===d?' active':''}" onclick="menuDay='${d}';render()">${labels2[d]||d+'요일'}</button>`).join('')}</div>
+      <div class="meal-card">
+        <div class="meal-hdr" style="background:#14532d20;border-bottom:1px solid #14532d40">
+          ☀️ <span>중식 (점심)</span>
+          <span style="margin-left:auto;font-size:11px;color:var(--t2)">${labels2[menuDay]||menuDay}</span>
+        </div>
+        <div class="meal-items">${items.length?items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:#86efac"></div>${item}</div>`).join(''):'<div style="color:var(--t2);padding:8px 0">식단 정보 없음</div>'}</div>
+      </div>
+      <div style="background:var(--s2);border-radius:10px;padding:12px 14px;margin-top:4px;font-size:12px;color:var(--t2);">
+        💡 원산지는 식당 입구 게시판을 참고해주세요. 식재 수급에 따라 변경될 수 있습니다.<br>
+        🚨 알레르기가 있으신 분은 영양사(☎8829)에게 문의하세요.
+      </div>`;
     return;
   }
 
   // SEAT TAB
   if(currentTab==='seat'){
-    // 분임별 자리배치 (12분임, 각 강의실별)
-    const classrooms = [
-      {name:'A강의실 (1~4분임)', buns:['1분임','2분임','3분임','4분임']},
-      {name:'B강의실 (5~8분임)', buns:['5분임','6분임','7분임','8분임']},
-      {name:'C강의실 (9~12분임)', buns:['9분임','10분임','11분임','12분임']},
-    ];
-    const buns=['1분임','2분임','3분임','4분임','5분임','6분임','7분임','8분임','9분임','10분임','11분임','12분임'];
+    const byNum={};
+    DATA.forEach(m=>byNum[parseInt(m.교번)]=m);
+
+    function seatCell(num){
+      if(!num) return `<div style="width:58px;height:42px;flex-shrink:0;border-radius:6px;border:1px dashed #253040"></div>`;
+      const m=byNum[num];
+      if(!m) return `<div style="width:58px;height:42px;flex-shrink:0;border-radius:6px;background:#111;border:1px solid #222"></div>`;
+      return `<div onclick="openModal('${m.교번}')"
+        title="${m.소속} ${m.성명}"
+        style="width:58px;height:42px;flex-shrink:0;border-radius:6px;
+               background:#1a2e44;border:1px solid #2d5a8e;
+               display:flex;flex-direction:column;align-items:center;
+               justify-content:center;cursor:pointer;gap:1px;
+               transition:background .15s;"
+        onmouseover="this.style.background='#243d5c'"
+        onmouseout="this.style.background='#1a2e44'">
+        <div style="font-size:11px;font-weight:700;color:#e6edf3;line-height:1.2">${m.성명}</div>
+        <div style="font-size:9px;color:#7dafd4;line-height:1.2">${m.소속}</div>
+      </div>`;
+    }
+
+    function makeRow(nums){
+      return `<div style="display:flex;gap:3px;margin-bottom:3px">${nums.map(n=>seatCell(n)).join('')}</div>`;
+    }
+
+    const frontHTML = SEAT_ROWS.FL.map((row,i)=>`
+      <div style="display:flex;gap:12px;margin-bottom:3px;align-items:flex-start">
+        <div style="display:flex;gap:3px">${SEAT_ROWS.FL[i].map(n=>seatCell(n)).join('')}</div>
+        <div style="width:16px"></div>
+        <div style="display:flex;gap:3px">${SEAT_ROWS.FM[i].map(n=>seatCell(n)).join('')}</div>
+        <div style="width:16px"></div>
+        <div style="display:flex;gap:3px">${SEAT_ROWS.FR[i].map(n=>seatCell(n)).join('')}</div>
+      </div>`).join('');
+
     c.innerHTML=`
-      <div class="seat-notice">💡 자리배치는 분임별로 구성되어 있습니다. 이름을 누르면 상세정보를 볼 수 있습니다.</div>
-      <div class="seat-filter">
-        <button class="sf-btn${seatFilter==='all'?' active':''}" onclick="seatFilter='all';render()">전체</button>
-        ${buns.map(b=>`<button class="sf-btn${seatFilter===b?' active':''}" onclick="seatFilter='${b}';render()">${b}</button>`).join('')}
+      <div style="background:var(--s2);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--t2)">
+        🏫 <b style="color:var(--t1)">212호 강의실 자리배치</b>
+        <span style="float:right;font-size:10px">이름 누르면 상세정보</span>
       </div>
-      ${classrooms.filter(cl=>seatFilter==='all'||cl.buns.includes(seatFilter)).map(cl=>{
-        const members=DATA.filter(m=>cl.buns.includes(m.분임)&&(seatFilter==='all'||m.분임===seatFilter));
-        const sorted=members.sort((a,b)=>parseInt(a.교번)-parseInt(b.교번));
-        // 한 줄에 5명씩 배치
-        const rows=[];
-        for(let i=0;i<sorted.length;i+=5)rows.push(sorted.slice(i,i+5));
-        return `<div class="classroom">
-          <div class="classroom-title">🏫 ${cl.name}</div>
-          <div class="podium">📋 강사석 / 스크린</div>
-          <div class="seat-grid">
-            ${rows.map(row=>`<div class="seat-row">
-              ${row.map(m=>`<div class="seat" onclick="openModal('${m.교번}')" title="${m.성명} (${m.소속})" style="background:${getBunColor(m.분임)}15;border-color:${getBunColor(m.분임)}50">
-                <div class="sname">${m.성명}</div>
-                <div class="snum">#${m.교번}</div>
-              </div>`).join('')}
-            </div>`).join('')}
-          </div>
-        </div>`;
-      }).join('')}`;
+
+      <div style="background:#1e3a5f30;border:1px solid #3b82f650;border-radius:8px;
+                  padding:8px;text-align:center;font-size:12px;color:var(--t2);margin-bottom:10px">
+        📺 강 단 · 스크린
+      </div>
+
+      <div style="overflow-x:auto;padding-bottom:6px">
+        ${frontHTML}
+      </div>
+
+      <div style="background:var(--s2);border-radius:6px;padding:5px;
+                  text-align:center;font-size:11px;color:var(--t2);margin:10px 0">
+        ── 통 로 ──
+      </div>
+
+      <div style="display:flex;gap:16px;justify-content:flex-start;overflow-x:auto;padding-bottom:6px">
+        <div>
+          <div style="font-size:10px;color:var(--t2);margin-bottom:5px;text-align:center">후방 좌측</div>
+          ${SEAT_ROWS.BL.map(r=>makeRow(r)).join('')}
+        </div>
+        <div style="display:flex;align-items:center;padding:0 10px">
+          <div style="border:2px solid var(--bd);border-radius:8px;width:72px;height:90px;
+                      display:flex;align-items:center;justify-content:center;
+                      color:var(--t2);font-size:11px">출입문</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--t2);margin-bottom:5px;text-align:center">후방 우측</div>
+          ${SEAT_ROWS.BR.map(r=>makeRow(r)).join('')}
+        </div>
+      </div>`;
     return;
   }
 
-  // STAFF TAB
+  // STAFF TAB  // STAFF TAB  // STAFF TAB  // STAFF TAB
   if(currentTab==='staff'){
     document.getElementById('totalBadge').textContent=`${STAFF.length}명`;
     c.innerHTML=`
@@ -895,7 +1066,11 @@ function render(){
       </div>
       <div class="staff-grid">
         ${STAFF.map(s=>`<div class="staff-card">
-          <div class="staff-avatar" style="background:${s.bg}">${s.emoji}</div>
+          <div class="staff-avatar" style="background:${s.bg}">
+            ${s.emoji}
+            <img src="${s.photo}" alt="" onerror="this.remove()"
+              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px">
+          </div>
           <div style="flex:1">
             <div class="staff-name">${s.name}</div>
             <div class="staff-role" style="color:${s.bg}">${s.role}</div>
