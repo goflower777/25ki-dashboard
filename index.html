@@ -766,7 +766,7 @@ let seatFilter = 'all';
 function ini(n){return n.charAt(0);}
 //파일명수정
 //function photo(m){return `photos/${String(m.교번).padStart(3,'0')}_${m.소속}_${m.성명}.jpg`;}
-function photo(m){return `photos/${String(m.교번).padStart(3,'0')}.jpg`;}
+function photo(m){return `photos_seat/${String(m.교번).padStart(3,'0')}.jpg`;}
 function avi(m,cls){return `<div class="${cls}">${ini(m.성명)}<img src="${photo(m)}" alt="" onerror="this.remove()" loading="lazy"></div>`;}
 
 function filteredData(){
