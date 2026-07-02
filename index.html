@@ -109,17 +109,18 @@ header{background:linear-gradient(135deg,#1e3a5f 0%,#0d1117 60%);border-bottom:1
 .staff-actions{display:flex;gap:8px;margin-top:10px;}
 .staff-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;border:none;border-radius:10px;padding:9px;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-decoration:none;}
 
-/* TIMETABLE */
-.tt-week{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;}
-.tt-week::-webkit-scrollbar{height:0;}
-.tt-day-btn{background:var(--s2);border:1px solid var(--bd);color:var(--t2);border-radius:8px;padding:6px 14px;font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;}
-.tt-day-btn.active{background:var(--a1);border-color:var(--a1);color:#fff;font-weight:700;}
-.tt-card{background:var(--s1);border-radius:12px;border:1px solid var(--bd);overflow:hidden;margin-bottom:8px;}
-.tt-time{background:var(--s2);padding:8px 14px;font-size:12px;color:var(--t2);font-weight:600;}
-.tt-content{padding:12px 14px;}
-.tt-subject{font-size:15px;font-weight:700;margin-bottom:4px;}
-.tt-detail{font-size:12px;color:var(--t2);}
-.tt-type{display:inline-block;font-size:11px;border-radius:5px;padding:2px 7px;font-weight:600;margin-top:6px;}
+/* QUIZ (친해지기) */
+.qz-photo{width:150px;height:150px;border-radius:20px;margin:6px auto 14px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:900;color:#fff;position:relative;overflow:hidden;border:2px solid var(--bd);}
+.qz-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.qz-opt{display:block;width:100%;background:var(--s1);border:1px solid var(--bd);color:var(--t1);border-radius:12px;padding:13px 14px;font-size:14px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;margin-bottom:8px;text-align:left;transition:all .12s;}
+.qz-opt:active{transform:scale(.98);}
+.qz-opt.correct{background:#0c3d2a;border-color:#10b981;color:#6ee7b7;}
+.qz-opt.wrong{background:#3d0c14;border-color:#ef4444;color:#fca5a5;}
+.qz-opt span{color:var(--t2);font-weight:400;font-size:12px;margin-left:6px;}
+.qz-btn{display:inline-block;background:var(--a1);border:none;color:#fff;border-radius:12px;padding:12px 22px;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;margin:4px;}
+.qz-btn.ghost{background:var(--s2);border:1px solid var(--bd);color:var(--t1);}
+.qz-bar{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--t2);margin-bottom:10px;}
+.qz-card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:20px 16px;text-align:center;}
 
 /* MENU */
 .menu-week{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;}
@@ -297,9 +298,13 @@ if(sessionStorage.getItem('pw_ok')==='1'){
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"/></svg>
     외국어반
   </button>
-  <button class="nav-btn" data-tab="timetable" onclick="setTab('timetable')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-    시간표
+  <button class="nav-btn" data-tab="hobby" onclick="setTab('hobby')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 7.7l5.4-.8z"/></svg>
+    취미특기
+  </button>
+  <button class="nav-btn" data-tab="quiz" onclick="setTab('quiz')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+    친해지기
   </button>
   <button class="nav-btn" data-tab="menu" onclick="setTab('menu')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
@@ -401,325 +406,39 @@ const SEAT_ROWS = {
 };
 
 
-// ===== 주차별 날짜 매핑 =====
-const TT_DATES = {
-  '11주차(4.27~5.1)':     {'월':'4.27.(월)','화':'4.28.(화)','수':'4.29.(수)','목':'4.30.(목)','금':'5.1.(금)'},
-  '12주차(5.4~5.8)':      {'월':'5.4.(월)','화':'5.5.(화)','수':'5.6.(수)','목':'5.7.(목)','금':'5.8.(금)'},
-  '13주차(5.11~5.15)':    {'월':'5.11.(월)','화':'5.12.(화)','수':'5.13.(수)','목':'5.14.(목)','금':'5.15.(금)'},
-  '14주차(5.18~5.22)':    {'월':'5.18.(월)','화':'5.19.(화)','수':'5.20.(수)','목':'5.21.(목)','금':'5.22.(금)'},
-  '15주차(5.25~5.29)':    {'월':'5.25.(월)','화':'5.26.(화)','수':'5.27.(수)','목':'5.28.(목)','금':'5.29.(금)'},
-  '16주차(6.1~6.5)':      {'월':'6.1.(월)','화':'6.2.(화)','수':'6.3.(수)','목':'6.4.(목)','금':'6.5.(금)'},
-  '17주차(6.8~6.12)':     {'월':'6.8.(월)','화':'6.9.(화)','수':'6.10.(수)','목':'6.11.(목)','금':'6.12.(금)'},
-  '18주차(6.15~6.19)':    {'월':'6.15.(월)','화':'6.16.(화)','수':'6.17.(수)','목':'6.18.(목)','금':'6.19.(금)'},
-  '19주차(6.22~6.26)':    {'월':'6.22.(월)','화':'6.23.(화)','수':'6.24.(수)','목':'6.25.(목)','금':'6.26.(금)'},
-  '20주차(6.29~7.3)':     {'월':'6.29.(월)','화':'6.30.(화)','수':'7.1.(수)','목':'7.2.(목)','금':'7.3.(금)'},
-  '21주차(7.6~7.10)':     {'월':'7.6.(월)','화':'7.7.(화)','수':'7.8.(수)','목':'7.9.(목)','금':'7.10.(금)'},
-  '22주차(7.13~7.17)':    {'월':'7.13.(월)','화':'7.14.(화)','수':'7.15.(수)','목':'7.16.(목)','금':'7.17.(금)'},
-  '23~24주차(7.20~7.31)': {'월':'7.20.(월)','화':'7.21.(화)','수':'7.22.(수)','목':'7.23.(목)','금':'7.24.(금)'},
-};
+// ===== 취미·특기반 데이터 (신청기간 ~6.19(금), 정원 초과 시 추첨) =====
+const HOBBY_COURSES = [
+  {cat:'취미', name:'보컬트레이닝', cap:22, members:[1,114,97,115,43,24,106,98,41,70,84,9,12,75,7,125,8,124,122,10,73]},
+  {cat:'취미', name:'SNPE', cap:22, members:[23,35,54,122,46,37,62,33,96,91,89,129,32,29,27,14,110,121,45,88,36,39,127,64,74,21,44]},
+  {cat:'취미', name:'펜드로잉', cap:20, members:[126,59,101,94,76,116,6,48,77,65]},
+  {cat:'취미', name:'헬스', cap:16, members:[119,118,49,66,60,52,20,112,86,51,107,71,104]},
+  {cat:'취미', name:'줌바', cap:20, members:[69,50,2,4,111,67,22]},
+  {cat:'취미', name:'골프', cap:16, members:[117,42,26,38,11,82,40,109,16,18,3,113,61,103,92,55,72,79,108,70,128,53,105,56]},
+  {cat:'취미', name:'탁구', cap:16, members:[65,102,57,93,83,15,13,100,68,19,5,63,81,78]},
+  {cat:'특기', name:'손뜨개', cap:14, members:[117,42,94,7,125,6,112,111,100,68,121,45,126,39]},
+  {cat:'특기', name:'헤어커트', cap:13, members:[115,35,59,26,58,84,40,9,76,89,8,18,51]},
+  {cat:'특기', name:'타로카드리딩', cap:13, members:[5,65,1,106,75,96,66,104,103,4,14,70]},
+  {cat:'특기', name:'자산관리(주식·예능)', cap:32, members:[114,43,24,98,90,102,46,37,11,33,69,49,93,50,60,27,29,79,86,67,16,128,107,53,77,52,64,72,21,44]},
+  {cat:'특기', name:'캘리그라피', cap:15, members:[101,54,109,91,57,116,3,61,2,108,110,73,63,71]},
+  {cat:'특기', name:'정리수납', cap:15, members:[119,129,123,118,82,62,12,32,83,72,15,88,36]},
+  {cat:'특기', name:'드론', cap:15, members:[84,124,10,19,81,113,78]},
+  {cat:'특기', name:'영어원어민 회화', cap:12, members:[97,23,122,92,20,55,13,44,105,56]},
+];
 
-// ===== TIMETABLE DATA (5~7월 실제 시간표) =====
-const TIMETABLE = {
-  '11주차(4.27~5.1)': {
-    '월': [
-      {time:'09:00~16:50', subject:'분임별 봉사활동 (현장학습)', detail:'', type:'봉사', typeColor:'#14532d', typeText:'#86efac'},
-    ],
-    '화': [
-      {time:'09:00~10:50', subject:'직무연구', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'13:00~14:50', subject:'취미반 - 귀로 소통하는 신체 회복 ⑤', detail:'최은하 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '수': [
-      {time:'13:00~16:50', subject:'아이디어 런웨이 정책 제안 공모전', detail:'', type:'특강', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-    ],
-    '목': [],
-    '금': [
-      {time:'종일', subject:'근로자의 날', detail:'공휴일', type:'휴일', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-    ],
-  },
-  '12주차(5.4~5.8)': {
-    '월': [
-      {time:'09:00~16:50', subject:'개인 미션 - 공공캠페인 발굴 사례 찾기 1p', detail:'개인 미션 수행', type:'개인미션', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-    ],
-    '화': [
-      {time:'종일', subject:'어린이날', detail:'공휴일', type:'휴일', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-    ],
-    '수': [
-      {time:'09:00~11:50', subject:'데스노트 미리 보기', detail:'안지연 대표', type:'문화', typeColor:'#4a1942', typeText:'#f9a8d4'},
-      {time:'13:00~14:50', subject:'에너지 리차지 (Energy Re-charge)', detail:'', type:'특강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'15:00~16:50', subject:'뮤지컬 데스노트', detail:'디큐브 링크아트센터', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '목': [
-      {time:'09:00~11:50', subject:'에너지 리차지 (Energy Re-charge)', detail:'', type:'특강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~16:50', subject:'대니구의 플레이리스트 - 롯데콘서트홀 & 독립서점 방문', detail:'', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '금': [
-      {time:'09:00~11:50', subject:'가치 소비, 로컬 투어 영상 제작 1', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'가치 소비, 로컬 투어 영상 제작 2', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-  },
-  '13주차(5.11~5.15)': {
-    '월': [
-      {time:'09:00~10:50', subject:'손바닥 도서관', detail:'독서 활동', type:'독서', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'11:00~11:50', subject:'귀로 소통하는 신체 회복 ⑦', detail:'최은하 대표', type:'건강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'정책의 핵심을 전달하는 글쓰기 기법', detail:'정인광 팀장', type:'강의', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '화': [
-      {time:'09:00~10:50', subject:'직무연구 1', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'13:00~14:50', subject:'취미② 근육이완 1', detail:'조줄희 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '수': [
-      {time:'09:00~16:50', subject:'분임별 현장학습', detail:'관광지 안전 실태조사를 통한 지역 활성화 방안 마련', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '목': [],
-    '금': [],
-  },
-  '14주차(5.18~5.22)': {
-    '월': [
-      {time:'09:00~10:50', subject:'보도자료 작성 실습 (비대면)', detail:'랜선 온라인 수업', type:'비대면', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'11:00~11:50', subject:'랜선쿠킹', detail:'우미선 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '화': [
-      {time:'09:00~10:50', subject:'직무연구 2', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'11:00~11:50', subject:'분임별 학습 - 보도자료 작성 실습', detail:'', type:'강의', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'13:00~14:50', subject:'직무연구 현장 인터뷰 등 (현장)', detail:'직무연구 현장 활동', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'15:00~16:50', subject:'글로벌 하이엔드 세션 - 프랑스', detail:'', type:'글로벌', typeColor:'#1a3a2a', typeText:'#6ee7b7'},
-    ],
-    '수': [
-      {time:'09:00~10:50', subject:'손바닥 도서관', detail:'독서 활동', type:'독서', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'13:00~13:50', subject:'특기① 수어 1', detail:'채주연 대표', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-      {time:'14:00~14:50', subject:'특기② 하모니카 1', detail:'김회창 플레이어', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '목': [
-      {time:'09:00~10:50', subject:'건강관리 시리즈 - 눈 건강', detail:'임상진 의사', type:'건강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'유토피아 3', detail:'유토피아 발표 (3월)', type:'유토피아', typeColor:'#4a1942', typeText:'#f9a8d4'},
-    ],
-    '금': [
-      {time:'09:00~10:50', subject:'가치 소비, 로컬 투어 영상 제작 3', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'직무연구 조별 활동', detail:'', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'15:00~16:50', subject:'취미② 근육이완 2', detail:'조줄희 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-  },
-  '15주차(5.25~5.29)': {
-    '월': [
-      {time:'종일', subject:'부처님 오신날 대체휴일', detail:'공휴일', type:'휴일', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-    ],
-    '화': [
-      {time:'09:00~11:50', subject:'공익 홍보 영상 제작', detail:'', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'공직자의 자세', detail:'오병권 전 부지사', type:'강의', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-    ],
-    '수': [
-      {time:'09:00~11:50', subject:'리더십 역량 함양 1', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-      {time:'13:00~14:50', subject:'SF와 미래', detail:'배광수 감독', type:'강의', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '목': [
-      {time:'09:00~10:50', subject:'공직 리더의 자산관리 - 펀드편', detail:'우재룡 대표', type:'자산관리', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '금': [
-      {time:'09:00~11:50', subject:'리더십 역량강화 사이버 교육 & 나의 다짐 1P', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-    ],
-  },
-  '16주차(6.1~6.5)': {
-    '월': [
-      {time:'09:00~11:50', subject:'개인별 봉사활동', detail:'', type:'봉사', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'취미② 근육이완 3', detail:'조줄희 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '화': [
-      {time:'09:00~10:50', subject:'직무연구 3', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'13:00~14:50', subject:'직무연구 조별 활동', detail:'', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '수': [
-      {time:'종일', subject:'지방선거', detail:'공휴일', type:'휴일', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-    ],
-    '목': [
-      {time:'09:00~11:50', subject:'리더십 역량 함양 2', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-      {time:'13:00~14:50', subject:'건강관리 시리즈 - 치아 건강', detail:'고성준 의사', type:'건강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '금': [
-      {time:'09:00~11:50', subject:'가치 소비, 로컬 투어 영상 제작 4', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'공직 리더의 자산관리 - 연금편', detail:'이영주 대표', type:'자산관리', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-  },
-  '17주차(6.8~6.12)': {
-    '월': [
-      {time:'09:00~10:50', subject:'보도자료 작성 실습 (비대면)', detail:'', type:'비대면', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'11:00~11:50', subject:'특기① 수어 2', detail:'채주연 대표', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-      {time:'13:00~14:50', subject:'리더십 성장일지 작성', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-      {time:'15:00~16:50', subject:'글로벌 하이엔드 세션 - 일본', detail:'', type:'글로벌', typeColor:'#1a3a2a', typeText:'#6ee7b7'},
-    ],
-    '화': [
-      {time:'09:00~10:50', subject:'직무연구 4', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'13:00~14:50', subject:'취미② 근육이완 4', detail:'조줄희 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
-      {time:'14:00~14:50', subject:'특기② 하모니카 2', detail:'김회창 플레이어', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-    ],
-    '수': [
-      {time:'09:00~10:50', subject:'건강관리 시리즈 - 사상체질', detail:'전금주 대표', type:'건강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'직무연구 조별 활동', detail:'', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '목': [
-      {time:'09:00~16:50', subject:'지역문화 콘텐츠 체험 (현장)', detail:'이천도자마을', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '금': [
-      {time:'09:00~10:50', subject:'가치 소비, 로컬 투어 영상 제작 5', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'직무연구 조별 활동 5', detail:'', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'14:00~14:50', subject:'공직 리더의 자산관리 - 세무편', detail:'박민규 세무사', type:'자산관리', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-  },
-  '18주차(6.15~6.19)': {
-    '월': [
-      {time:'09:00~10:50', subject:'보도자료 작성 실습 (비대면)', detail:'', type:'비대면', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'11:00~11:50', subject:'특기① 수어 3', detail:'채주연 대표', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-      {time:'13:00~14:50', subject:'리더십 성장일지 작성', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-      {time:'15:00~16:50', subject:'글로벌 하이엔드 세션 - 중국', detail:'', type:'글로벌', typeColor:'#1a3a2a', typeText:'#6ee7b7'},
-    ],
-    '화': [
-      {time:'09:00~10:50', subject:'직무연구 5', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'13:00~13:50', subject:'청렴 판소리', detail:'조애란 명창', type:'특강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'14:00~14:50', subject:'특기② 하모니카 3', detail:'김회창 플레이어', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-    ],
-    '수': [
-      {time:'09:00~10:50', subject:'건강관리 시리즈 - 정신건강 서툰 어른 처방전', detail:'박대선 코치', type:'건강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'취미② 근육이완 5', detail:'조줄희 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '목': [
-      {time:'09:00~11:50', subject:'리더십 역량 함양 3', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-      {time:'13:00~14:50', subject:'리더십 역량 함양 4', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '금': [
-      {time:'09:00~10:50', subject:'가치 소비, 로컬 투어 영상 제작 6', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~16:50', subject:'직무연구 조별 활동 & 개인별 유튜브 영상 촬영 (현장)', detail:'', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-  },
-  '19주차(6.22~6.26)': {
-    '월': [
-      {time:'09:00~10:50', subject:'보도자료 작성 실습 (비대면)', detail:'', type:'비대면', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'11:00~11:50', subject:'특기① 수어 4', detail:'채주연 대표', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-      {time:'13:00~14:50', subject:'리더십 성장일지 작성', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-      {time:'19:30~', subject:'19:30/유튜브 하이엔드 세션 - 영국 랜선투어', detail:'유튜브 라이브', type:'글로벌', typeColor:'#1a3a2a', typeText:'#6ee7b7'},
-    ],
-    '화': [
-      {time:'09:00~10:50', subject:'직무연구 6', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'11:00~11:50', subject:'봉사하는 삶 - 이홍렬 선생님', detail:'방송인 이홍렬', type:'특강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'13:00~14:50', subject:'취미② 근육이완 6', detail:'조줄희 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
-      {time:'14:00~14:50', subject:'특기② 하모니카 4', detail:'김회창 플레이어', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-    ],
-    '수': [
-      {time:'09:00~10:50', subject:'손바닥 도서관', detail:'독서 활동', type:'독서', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'13:00~14:50', subject:'유토피아 4 - 인공지능과의 협업, 리더의 의사결정', detail:'배상희 대표', type:'유토피아', typeColor:'#4a1942', typeText:'#f9a8d4'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '목': [
-      {time:'09:00~11:50', subject:'민주적 기본질서 확립 및 헌법 정신 내재화 (현장)', detail:'헌법재판소 오전 10시 / 오후 2시', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '금': [
-      {time:'09:00~10:50', subject:'가치 소비, 로컬 투어 영상 제작 7', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-    ],
-  },
-  '20주차(6.29~7.3)': {
-    '월': [
-      {time:'09:00~10:50', subject:'보도자료 작성 실습 (비대면)', detail:'', type:'비대면', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'11:00~11:50', subject:'특기① 수어 5', detail:'채주연 대표', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-      {time:'13:00~14:50', subject:'리더십 성장일지 작성', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-    ],
-    '화': [
-      {time:'09:00~10:50', subject:'직무연구 7', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'10:00~10:50', subject:'직무연구 8', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'13:00~13:50', subject:'한미관계', detail:'민정훈 교수', type:'강의', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'14:00~14:50', subject:'특기② 하모니카 5', detail:'김회창 플레이어', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-      {time:'15:00~16:50', subject:'가치 소비, 로컬 투어 영상 제작 8', detail:'박정옥 대표 외', type:'영상제작', typeColor:'#14532d', typeText:'#86efac'},
-    ],
-    '수': [
-      {time:'09:00~10:50', subject:'삶을 시로 읽는 방법', detail:'나태주 시인', type:'강의', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'13:00~13:50', subject:'손바닥 도서관', detail:'독서 활동', type:'독서', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'14:00~14:50', subject:'남북관계', detail:'김영수 교수', type:'강의', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '목': [
-      {time:'09:00~12:50', subject:'랜드마크를 활용한 도시 브랜드 제고 (현장)', detail:'서울스카이 & 아쿠아리움 오전 11시', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'14:00~14:50', subject:'공직 리더의 자산관리 - 소비습관편', detail:'김경필 대표', type:'자산관리', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '금': [],
-  },
-  '21주차(7.6~7.10)': {
-    '월': [
-      {time:'09:00~10:50', subject:'보도자료 작성 실습 (비대면)', detail:'', type:'비대면', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'11:00~11:50', subject:'특기① 수어 6', detail:'채주연 대표', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-      {time:'13:00~14:50', subject:'리더십 성장일지 작성', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-      {time:'19:30~', subject:'19:30/유튜브 하이엔드 세션 - 스페인 랜선투어', detail:'유튜브 라이브', type:'글로벌', typeColor:'#1a3a2a', typeText:'#6ee7b7'},
-    ],
-    '화': [
-      {time:'09:00~16:50', subject:'세계가 주목하는 우리 문화의 힘 (현장)', detail:'국립중앙박물관 오후 1시', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '수': [
-      {time:'09:00~10:50', subject:'직무연구 9', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'11:00~11:50', subject:'핵심인재 소통의 시간', detail:'', type:'소통', typeColor:'#4a1942', typeText:'#f9a8d4'},
-      {time:'13:00~14:50', subject:'유토피아 5', detail:'유토피아 발표', type:'유토피아', typeColor:'#4a1942', typeText:'#f9a8d4'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '목': [
-      {time:'09:00~10:50', subject:'손바닥 도서관', detail:'독서 활동', type:'독서', typeColor:'#1e3a5f', typeText:'#93c5fd'},
-      {time:'13:00~16:50', subject:'에너지 리차지 - 몰입형 미디어 아트 체험 (현장)', detail:'빛의 시어터 오후 1시 30분', type:'현장학습', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '금': [
-      {time:'09:00~10:50', subject:'건강관리 시리즈 - 건강검진', detail:'서은영 교수', type:'건강', typeColor:'#14532d', typeText:'#86efac'},
-      {time:'14:00~14:50', subject:'특기② 하모니카 6', detail:'김회창 플레이어', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-    ],
-  },
-  '22주차(7.13~7.17)': {
-    '월': [
-      {time:'09:00~16:50', subject:'분임별 봉사활동 (현장)', detail:'', type:'봉사', typeColor:'#14532d', typeText:'#86efac'},
-    ],
-    '화': [
-      {time:'09:00~10:50', subject:'보도자료 작성 실습 (비대면)', detail:'', type:'비대면', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-      {time:'11:00~11:50', subject:'랜선쿠킹', detail:'우미선 대표', type:'취미', typeColor:'#2e1065', typeText:'#c4b5fd'},
-      {time:'13:00~14:50', subject:'리더십 성장일지 작성', detail:'', type:'리더십', typeColor:'#0a2a3b', typeText:'#7dd3fc'},
-      {time:'14:00~14:50', subject:'특기② 하모니카 7', detail:'김회창 플레이어', type:'특기', typeColor:'#3b2a0a', typeText:'#fde68a'},
-      {time:'15:00~16:50', subject:'상반기 주요 학습 점검', detail:'김선경 대표', type:'점검', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '수': [
-      {time:'09:00~10:50', subject:'직무연구 10', detail:'직무연구 조별 활동', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'13:00~14:50', subject:'직무연구 조별 활동', detail:'', type:'직무연구', typeColor:'#451a03', typeText:'#fcd34d'},
-      {time:'15:00~16:50', subject:'외국어', detail:'반별 외국어 교육', type:'외국어', typeColor:'#2e1065', typeText:'#c4b5fd'},
-    ],
-    '목': [
-      {time:'종일', subject:'상반기 종강 (의정부)', detail:'의정부 캠퍼스', type:'행사', typeColor:'#4a1942', typeText:'#f9a8d4'},
-    ],
-    '금': [
-      {time:'종일', subject:'제헌절', detail:'공휴일', type:'휴일', typeColor:'#3b1a1a', typeText:'#fca5a5'},
-    ],
-  },
-  '23~24주차(7.20~7.31)': {
-    '월': [
-      {time:'09:00~16:50', subject:'개인연구과제 수행 기간', detail:'7.20(월) ~ 7.31(금) 개인 연구 수행', type:'연구', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '화': [
-      {time:'09:00~16:50', subject:'개인연구과제 수행 기간', detail:'개인 연구 수행', type:'연구', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '수': [
-      {time:'09:00~16:50', subject:'개인연구과제 수행 기간', detail:'개인 연구 수행', type:'연구', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '목': [
-      {time:'09:00~16:50', subject:'개인연구과제 수행 기간', detail:'개인 연구 수행', type:'연구', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-    '금': [
-      {time:'09:00~16:50', subject:'개인연구과제 수행 기간', detail:'개인 연구 수행', type:'연구', typeColor:'#451a03', typeText:'#fcd34d'},
-    ],
-  },
+// 과정별 아이콘
+const HOBBY_ICONS = {
+  '보컬트레이닝':'🎤','SNPE':'🧘','펜드로잉':'✏️','헬스':'💪','줌바':'💃','골프':'⛳','탁구':'🏓',
+  '손뜨개':'🧶','헤어커트':'✂️','타로카드리딩':'🔮','자산관리(주식·예능)':'💰','캘리그라피':'🖌️','정리수납':'📦','드론':'🚁','영어원어민 회화':'🗣️'
 };
+function hIcon(name){return HOBBY_ICONS[name]||'⭐';}
+
+// 교번 → 취미/특기 과정 조회
+function hobbyOf(m){
+  const n=parseInt(m.교번);
+  const hobby=HOBBY_COURSES.filter(c=>c.cat==='취미'&&c.members.includes(n)).map(c=>c.name);
+  const skill=HOBBY_COURSES.filter(c=>c.cat==='특기'&&c.members.includes(n)).map(c=>c.name);
+  return {hobby, skill};
+}
 
 // ===== MENU DATA (인재소담 주간식단표) =====
 const MENU = {
@@ -756,8 +475,6 @@ const MENU = {
 let currentTab = 'list';
 let currentFilter = 'all';
 let searchQuery = '';
-let ttWeek = '12주차(5.4~5.8)';
-let ttDay = '월';
 let menuWeek = '4월20일주간(4.20~4.24)';
 let menuDay = '월';
 let seatFilter = 'all';
@@ -792,12 +509,13 @@ function filteredData(){
 function setTab(tab){
   currentTab=tab;
   currentFilter='all';
+  quiz=null;
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   renderFilter();
   render();
 }
 
-function setFilter(val){currentFilter=val;renderFilter();render();}
+function setFilter(val){currentFilter=val;if(currentTab==='quiz')quiz=null;renderFilter();render();}
 
 function renderFilter(){
   const fb=document.getElementById('filterBar');
@@ -810,6 +528,8 @@ function renderFilter(){
     ['영어','스페인어','중국어','일본어(4반)','일본어(5반)','일본어(6반)','일본어(7반)'].forEach(l=>opts.push({v:l,l:l}));
   }
   else if(currentTab==='travel'){['1팀','2팀','3팀','4팀'].forEach(t=>opts.push({v:t,l:t}));}
+  else if(currentTab==='hobby'){HOBBY_COURSES.forEach(cr=>opts.push({v:cr.name,l:hIcon(cr.name)+' '+cr.name}));}
+  else if(currentTab==='quiz'){for(let i=1;i<=12;i++)opts.push({v:`${i}분임`,l:`${i}분임`});}
   else{fb.innerHTML='';return;}
   fb.innerHTML=opts.map(o=>`<button class="fb${currentFilter===o.v?' active':''}" onclick="setFilter('${o.v}')">${o.l}</button>`).join('');
 }
@@ -891,7 +611,109 @@ const UTOPIA_TOPICS = {
   '19':  ['최소한 이것만은 알고 투자하자', '거대한 시장의 흐름 속에서 살아남기 위한 지혜 - 광주시 유용호'],
 };
 
+// ===== 친해지기 (이름 익히기 퀴즈) =====
+let quiz=null; // {mode, pool, idx, correct, wrong, current, opts, answered, revealed}
+
+function qShuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function quizPool(){
+  let d=DATA;
+  if(currentFilter!=='all') d=d.filter(m=>m.분임===currentFilter);
+  return qShuffle(d.slice());
+}
+
+function quizStart(mode, wrongOnly){
+  const pool = wrongOnly && quiz ? qShuffle(quiz.wrong.slice()) : quizPool();
+  if(!pool.length){alert('풀 문제가 없습니다.');return;}
+  quiz={mode, pool, idx:0, correct:0, wrong:[], current:null, opts:[], answered:false, revealed:false};
+  quizNextQ();
+}
+
+function quizNextQ(){
+  if(quiz.idx>=quiz.pool.length){quizSummary();return;}
+  quiz.current=quiz.pool[quiz.idx];
+  quiz.answered=false; quiz.revealed=false;
+  if(quiz.mode==='mc'){
+    const others=qShuffle(DATA.filter(m=>m.교번!==quiz.current.교번)).slice(0,3);
+    quiz.opts=qShuffle([quiz.current,...others]);
+  }
+  quizDraw();
+}
+
+function quizAnswer(i){
+  if(quiz.answered)return;
+  quiz.answered=true;
+  if(quiz.opts[i].교번!==quiz.current.교번) quiz.wrong.push(quiz.current);
+  else quiz.correct++;
+  quiz.pick=i;
+  quizDraw();
+}
+
+function quizSelf(ok){
+  if(quiz.answered)return;
+  quiz.answered=true;
+  if(ok)quiz.correct++; else quiz.wrong.push(quiz.current);
+  quiz.idx++; quizNextQ();
+}
+
+function quizGoNext(){quiz.idx++;quizNextQ();}
+
+function qPhoto(m){return `<div class="qz-photo">?<img src="${photo(m)}" alt="" onerror="this.remove()"></div>`;}
+
+function quizDraw(){
+  const c=document.getElementById('content');
+  const m=quiz.current;
+  let body='';
+  if(quiz.mode==='mc'){
+    body=quiz.opts.map((o,i)=>{
+      let cls='qz-opt';
+      if(quiz.answered){
+        if(o.교번===m.교번)cls+=' correct';
+        else if(i===quiz.pick)cls+=' wrong';
+      }
+      return `<button class="${cls}" onclick="quizAnswer(${i})">${o.성명}<span>${o.소속}</span></button>`;
+    }).join('');
+    if(quiz.answered) body+=`<div style="text-align:center;margin-top:6px;"><button class="qz-btn" onclick="quizGoNext()">다음 문제 →</button></div>`;
+  } else {
+    if(!quiz.revealed){
+      body=`<div style="text-align:center;">
+        <div style="color:var(--t2);font-size:13px;margin-bottom:12px;">이 분의 이름과 소속을 떠올려 보세요</div>
+        <button class="qz-btn" onclick="quiz.revealed=true;quizDraw()">정답 확인</button></div>`;
+    } else {
+      body=`<div style="text-align:center;">
+        <div style="font-size:20px;font-weight:900;margin-bottom:2px;">${m.성명}</div>
+        <div style="color:var(--t2);font-size:13px;margin-bottom:14px;">${m.소속} · ${m.직렬} · ${m.분임}</div>
+        <button class="qz-btn" onclick="quizSelf(true)">알고 있었어요 ✓</button>
+        <button class="qz-btn ghost" onclick="quizSelf(false)">몰랐어요 ✗</button></div>`;
+    }
+  }
+  c.innerHTML=`
+    <div class="qz-bar">
+      <span>${quiz.idx+1} / ${quiz.pool.length}</span>
+      <span>맞춤 ${quiz.correct} · 틀림 ${quiz.wrong.length}</span>
+      <span style="cursor:pointer;color:var(--a1);" onclick="quiz=null;render()">그만하기</span>
+    </div>
+    <div class="qz-card">${qPhoto(m)}${body}</div>`;
+}
+
+function quizSummary(){
+  const c=document.getElementById('content');
+  const total=quiz.pool.length;
+  const rate=total?Math.round(quiz.correct/total*100):0;
+  const wrongList=quiz.wrong.map(m=>`<div class="pill" onclick="openModal('${m.교번}')">${m.성명}<span>${m.소속}</span></div>`).join('');
+  c.innerHTML=`
+    <div class="qz-card">
+      <div style="font-size:38px;margin-bottom:6px;">${rate>=90?'🏆':rate>=70?'👏':'💪'}</div>
+      <div style="font-size:18px;font-weight:900;margin-bottom:4px;">${quiz.correct} / ${total} (${rate}%)</div>
+      <div style="color:var(--t2);font-size:13px;margin-bottom:14px;">${rate>=90?'거의 다 외웠어요!':rate>=70?'조금만 더!':'반복이 답입니다!'}</div>
+      ${quiz.wrong.length?`<button class="qz-btn" onclick="quizStart(quiz.mode,true)">틀린 ${quiz.wrong.length}명만 다시 풀기</button>`:''}
+      <button class="qz-btn ghost" onclick="quiz=null;render()">처음으로</button>
+      ${quiz.wrong.length?`<div style="margin-top:16px;text-align:left;"><div style="font-size:12px;color:var(--t2);margin-bottom:6px;">헷갈린 분들 (탭하면 상세보기)</div><div class="group-pills">${wrongList}</div></div>`:''}
+    </div>`;
+}
+
 function memberCard(m){
+  const hs = hobbyOf(m);
   const teamRegion = TEAM_REGIONS[m.국외연수팀];
   const utopiaMonth = UTOPIA_MONTH[m.발표회차];
   const utopiaTopic = UTOPIA_TOPICS[m.교번];
@@ -912,6 +734,8 @@ function memberCard(m){
       <span class="tag t-lan">${m.외국어} ${m.외국어반}</span>
       <span class="tag t-trv">${teamRegion}</span>
       <span class="tag" style="background:#4a1942;color:#f9a8d4">🎤 ${utopiaMonth}</span>
+      ${hs.hobby.map(h=>`<span class="tag" style="background:#0c3d33;color:#5eead4">${hIcon(h)} ${h}</span>`).join('')}
+      ${hs.skill.map(s=>`<span class="tag" style="background:#3d2c0c;color:#fbbf24">${hIcon(s)} ${s}</span>`).join('')}
     </div>
   </div>`;
 }
@@ -1069,29 +893,61 @@ function render(){
     return;
   }
 
-  // TIMETABLE TAB
-  if(currentTab==='timetable'){
-    const weeks=Object.keys(TIMETABLE);
-    const days=['월','화','수','목','금'];
-    const schedule=TIMETABLE[ttWeek]?.[ttDay]||[];
+  // 친해지기 TAB (이름 익히기)
+  if(currentTab==='quiz'){
+    if(quiz){quizDraw();return;}
+    const n=quizPool().length;
     c.innerHTML=`
-      <div class="tt-week">${weeks.map(w=>`<button class="tt-day-btn${ttWeek===w?' active':''}" onclick="ttWeek='${w}';ttDay='월';render()">${w}</button>`).join('')}</div>
-      <div class="tt-week">${days.map(d=>{
-        const dateStr = TT_DATES[ttWeek]?.[d]||'';
-        const label = dateStr ? `${dateStr}` : `${d}요일`;
-        return `<button class="tt-day-btn${ttDay===d?' active':''}" onclick="ttDay='${d}';render()">${label}</button>`;
-      }).join('')}</div>
-      ${schedule.length?schedule.map(s=>`
-        <div class="tt-card">
-          <div class="tt-time">⏰ ${s.time}</div>
-          <div class="tt-content">
-            <div class="tt-subject">${s.subject}</div>
-            <div class="tt-detail">${s.detail}</div>
-            <span class="tt-type" style="background:${s.typeColor};color:${s.typeText}">${s.type}</span>
-          </div>
-        </div>`).join(''):'<div class="empty">일정 없음</div>'}
-      <div style="background:var(--s2);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:12px;color:var(--t2);">💡 시간표는 운영진 수정 후 반영됩니다</div>`;
+      <div class="qz-card">
+        <div style="font-size:36px;margin-bottom:8px;">🤝</div>
+        <div style="font-size:17px;font-weight:900;margin-bottom:6px;">동기들과 친해지기</div>
+        <div style="color:var(--t2);font-size:13px;line-height:1.5;margin-bottom:16px;">사진을 보고 이름과 소속을 익혀보세요.<br>범위: <b style="color:var(--t1)">${currentFilter==='all'?'전체':currentFilter}</b> · ${n}명 (상단에서 분임 선택 가능)</div>
+        <button class="qz-btn" onclick="quizStart('mc')">🅰 4지선다 퀴즈</button>
+        <button class="qz-btn ghost" onclick="quizStart('card')">🃏 카드 넘기기</button>
+        <div style="color:var(--t2);font-size:11px;margin-top:14px;">💡 카드 모드: 사진 보고 이름을 먼저 떠올린 뒤 정답을 확인하는 암기용 모드</div>
+      </div>`;
     return;
+  }
+
+  // 취미특기반 TAB
+  if(currentTab==='hobby'){
+    const byNum={};
+    DATA.forEach(m=>byNum[parseInt(m.교번)]=m);
+    const q=searchQuery?searchQuery.toLowerCase():'';
+    const matches=m=>!q||m.성명.includes(q)||m.소속.includes(q)||m.교번===q||m.직렬.includes(q);
+    const notice=`<div style="background:var(--s2);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:var(--t2);">📋 신청기간: ~6.19(금)까지 · 최대인원 초과 시 추첨 예정</div>`;
+
+    function courseCard(cr){
+      const ms=cr.members.map(n=>byNum[n]).filter(Boolean).filter(matches);
+      if(q&&!ms.length) return '';
+      const over=cr.members.length>cr.cap;
+      const badge=over
+        ?`<span style="color:#f87171;font-weight:700;">초과 +${cr.members.length-cr.cap}</span>`
+        :`<span style="color:#34d399;font-weight:700;">여유 ${cr.cap-cr.members.length}</span>`;
+      return `<div class="group-card">
+        <div class="group-hdr" onclick="setFilter('${cr.name}')">
+          <span style="font-weight:700">${hIcon(cr.name)} ${cr.name}</span>
+          <span class="group-cnt">${cr.members.length}/${cr.cap}명 · ${badge}</span>
+        </div>
+        <div class="group-pills">${ms.map(m=>`<div class="pill" onclick="openModal('${m.교번}')">${m.성명}<span>${m.소속}</span></div>`).join('')||'<div style="font-size:12px;color:var(--t2);padding:4px 2px;">해당 없음</div>'}</div>
+      </div>`;
+    }
+
+    if(currentFilter!=='all'){
+      const cr=HOBBY_COURSES.find(x=>x.name===currentFilter);
+      if(cr){
+        const ms=cr.members.map(n=>byNum[n]).filter(Boolean).filter(matches);
+        const over=cr.members.length>cr.cap;
+        c.innerHTML=notice+`<div class="results-info">${cr.cat} · ${hIcon(cr.name)} ${cr.name} · ${cr.members.length}/${cr.cap}명${over?' (정원 초과, 추첨 예정)':''}</div><div class="member-list">${ms.length?ms.map(memberCard).join(''):'<div class="empty">검색 결과 없음</div>'}</div>`;
+        return;
+      }
+    }
+    let html=notice;
+    ['취미','특기'].forEach(cat=>{
+      const cards=HOBBY_COURSES.filter(x=>x.cat===cat).map(courseCard).join('');
+      if(cards) html+=`<div class="results-info" style="margin-top:8px;">${cat==='취미'?'🎨 취미반':'⭐ 특기반'}</div><div class="group-list">${cards}</div>`;
+    });
+    c.innerHTML=html; return;
   }
 
   // MENU TAB
@@ -1249,6 +1105,7 @@ function getBunColor(bun){
 function openModal(num){
   const m=DATA.find(d=>d.교번===num);
   if(!m)return;
+  const hs = hobbyOf(m);
   const utopiaTopic = UTOPIA_TOPICS[m.교번];
   document.getElementById('modalContent').innerHTML=`
     ${avi(m,'modal-avatar')}
@@ -1263,6 +1120,8 @@ function openModal(num){
       <div class="ii full"><div class="ii-lbl">직무연구</div><div class="ii-val">${m.직무연구조} · ${m.직무연구주제}</div></div>
       <div class="ii"><div class="ii-lbl">지도교수</div><div class="ii-val">${m.지도교수}</div></div>
       <div class="ii"><div class="ii-lbl">국외연수</div><div class="ii-val">${m.국외연수팀} · ${m.국외연수지역}</div></div>
+      <div class="ii"><div class="ii-lbl">취미반</div><div class="ii-val">${hs.hobby.length?hs.hobby.map(h=>hIcon(h)+' '+h).join(', '):'미신청'}</div></div>
+      <div class="ii"><div class="ii-lbl">특기반</div><div class="ii-val">${hs.skill.length?hs.skill.map(s=>hIcon(s)+' '+s).join(', '):'미신청'}</div></div>
     </div>
     ${utopiaTopic ? `<div style="margin-top:14px;background:#2a1a3a;border:1px solid #4a1942;border-radius:10px;padding:12px 14px;">
       <div style="font-size:11px;color:#f9a8d4;font-weight:700;margin-bottom:4px;">🎤 유토피아 발표 "${utopiaTopic[0]}"</div>
